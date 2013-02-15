@@ -3,15 +3,15 @@ package ytlib
 import (
     "net/http"
     "io/ioutil"
-    "regexp"
-    "strconv"
     "os"
     "strings"
     "fmt"
+    "net/url"
+    "strconv"
 )
 
 // YouTube Video url
-const YT_URL = "http://www.youtube.com/watch?v="
+const YT_URL = "http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&video_id=" //"http://www.youtube.com/watch?v="
 
 // Represents a YouTube video
 type YTVideo struct {
@@ -71,7 +71,7 @@ func (this *YTVideo) DownloadVideo(format int, name string) error {
 func (this *YTVideo) Init(videoId string) *YTVideo {
     return &YTVideo {
         videoId,
-        make(map[int]string, 0),
+        map[int]string {},
         []int { 37, 46, 22, 45, 35, 44, 18, 34, 43, 36, 5, 17 },
         map[int]string {
             37: ".mpg", 46: ".flv", // 1080p
@@ -101,32 +101,33 @@ func (this *YTVideo) GetFormatList() (map[int]string, error) {
 
 // Parse Page source for formatlist
 func (this *YTVideo) parseBody(body []byte) (map[int]string, error) {
+
+    values, err := url.ParseQuery(string(body))
+    if err != nil {
+        return nil, fmt.Errorf("Could not parse video info")
+    }
+
     this.FormatList = make(map[int]string, 0)
-    reg, _ := regexp.Compile("\"url_encoded_fmt_stream_map\": \"([^\"]*)")
-    regItag, _ := regexp.Compile("itag=([0-9]+)")
 
-    url_encoded := reg.FindSubmatch(body)
+    // Split format list
+    for _, v := range strings.Split(values["url_encoded_fmt_stream_map"][0], ",") {
+        formatValues, err := url.ParseQuery(v)
+        if err != nil {
+            continue
+        }
 
-    resultString := string(url_encoded[1])
-    resultString = replace(resultString, []string { "%25", "\\u0026", "\\" }, []string { "%", "&", "" })
+        itag, err := strconv.Atoi(formatValues["itag"][0])
+        if err != nil {
+            continue
+        }
 
-    // do some replace magic on the url for each video format
-    for _, v := range strings.Split(resultString, ",") {
-
-        t := strings.SplitN(v, "url=http", 2)
-        v = "url=http" + t[1] + "&" + t[0]
-        v = strings.Replace(v, "url=http%3A%2F%2F", "http://", 1)
-        v = replace(v, []string { "%3F", "%2F", "%3D", "%26", "%252C", "\\u0026", "sig=" },
-                       []string { "?",   "/",   "=",   "&",   "%2C",   "&",       "signature=" })
-
-        itag, _ := strconv.Atoi(regItag.FindStringSubmatch(v)[1])
-
-        if strings.Count(v, "itag=") > 1 {
-            v = strings.Replace(v, fmt.Sprintf("&itag=%d", itag), "", 1)
+        url := formatValues["url"][0]
+        if sig, ok := formatValues["sig"]; ok {
+            url += "&signature=" + sig[0]
         }
 
         // Add video url to result
-        this.FormatList[itag] = v
+        this.FormatList[itag] = url
     }
 
     return this.FormatList, nil
