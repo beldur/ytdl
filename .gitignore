@@ -1,0 +1,7 @@
+*.a
+*.o
+*.mpg
+*.flv
+
+/bin
+/pkg
