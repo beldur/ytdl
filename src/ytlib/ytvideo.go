@@ -10,19 +10,16 @@ import (
     "strconv"
 )
 
-// YouTube Video url
-const YT_URL = "http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&video_id=" //"http://www.youtube.com/watch?v="
-
 // Represents a YouTube video
 type YTVideo struct {
     VideoId string
     FormatList map[int]string
     qualityOrder []int
-    filetypes map[int]string
+    VideoInformation map[string][]string
 }
 
 // Get worst possible format id
-func (this *YTVideo) getWorstQuality() (int, error) {
+func (this *YTVideo) GetWorstQuality() (int, error) {
     for i := len(this.qualityOrder) - 1; i > -1; i-- {
         format := this.qualityOrder[i]
         if _, ok := this.FormatList[format]; ok {
@@ -34,7 +31,7 @@ func (this *YTVideo) getWorstQuality() (int, error) {
 }
 
 // Get best possible format id
-func (this *YTVideo) getBestQuality() (int, error) {
+func (this *YTVideo) GetBestQuality() (int, error) {
     for _, format := range this.qualityOrder {
         if _, ok := this.FormatList[format]; ok {
             return format, nil
@@ -46,20 +43,20 @@ func (this *YTVideo) getBestQuality() (int, error) {
 
 // Download worst possible quality
 func (this *YTVideo) DownloadWorstQuality(filename string) {
-    worstFormat, _ := this.getWorstQuality()
-    this.DownloadVideo(worstFormat, filename)
+    format, _ := this.GetWorstQuality()
+    this.DownloadVideo(filename, DownloadOptions { Format: format })
 }
 
 // Download best possible quality
 func (this *YTVideo) DownloadBestQuality(filename string) {
-    format, _ := this.getBestQuality()
-    this.DownloadVideo(format, filename)
+    format, _ := this.GetBestQuality()
+    this.DownloadVideo(filename, DownloadOptions{ Format: format })
 }
 
 // Download video for given format and save it into given name
-func (this *YTVideo) DownloadVideo(format int, name string) error {
-    if url, ok := this.FormatList[format]; ok {
-        filename := name + this.filetypes[format]
+func (this *YTVideo) DownloadVideo(name string, downloadOptions DownloadOptions) error {
+    if url, ok := this.FormatList[downloadOptions.Format]; ok {
+        filename := name + "." + YouTube_Formats[downloadOptions.Format].Container
 
         return this.download(url, filename)
     }
@@ -73,14 +70,7 @@ func (this *YTVideo) Init(videoId string) *YTVideo {
         videoId,
         map[int]string {},
         []int { 37, 46, 22, 45, 35, 44, 18, 34, 43, 36, 5, 17 },
-        map[int]string {
-            37: ".mpg", 46: ".flv", // 1080p
-            22: ".mpg", 45: ".flv", // 720p
-            35: ".mpg", 44: ".flv", // 480p
-            18: ".mpg", 34: ".mpg", 43: ".flv", // 360p
-            36: ".mpg", 5: ".flv", // 240p
-            17: ".mpg", // 114p
-        },
+        map[string][]string {},
     }
 }
 
@@ -93,7 +83,6 @@ func (this *YTVideo) GetFormatList() (map[int]string, error) {
         return nil, err
     }
 
-
     body, err := ioutil.ReadAll(resp.Body)
 
     return this.parseBody(body)
@@ -102,15 +91,16 @@ func (this *YTVideo) GetFormatList() (map[int]string, error) {
 // Parse Page source for formatlist
 func (this *YTVideo) parseBody(body []byte) (map[int]string, error) {
 
-    values, err := url.ParseQuery(string(body))
+    videoInfo, err := url.ParseQuery(string(body))
     if err != nil {
         return nil, fmt.Errorf("Could not parse video info")
     }
 
+    this.VideoInformation = videoInfo
     this.FormatList = make(map[int]string, 0)
 
     // Split format list
-    for _, v := range strings.Split(values["url_encoded_fmt_stream_map"][0], ",") {
+    for _, v := range strings.Split(videoInfo["url_encoded_fmt_stream_map"][0], ",") {
         formatValues, err := url.ParseQuery(v)
         if err != nil {
             continue
