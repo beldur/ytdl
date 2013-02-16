@@ -9,9 +9,12 @@ import (
 func main() {
     videoId := "8k9XnnqACdc"
     ytVideo := new(ytlib.YTVideo).Init(videoId)
-    ytVideo.GetFormatList()
+    list, _ := ytVideo.GetFormatList()
+    title := ytVideo.VideoInformation["title"][0]
+    fmt.Println(list, title)
 
-    fmt.Println("")
-    ytVideo.DownloadWorstQuality(videoId + "Worst")
-    ytVideo.DownloadBestQuality(videoId + "Best")
+    format, _ := ytVideo.GetBestQuality()
+    ytVideo.DownloadVideo(title,
+        ytlib.DownloadOptions{ Format: format },
+    )
 }
