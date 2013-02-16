@@ -58,6 +58,10 @@ func (this *YTVideo) DownloadVideo(name string, downloadOptions DownloadOptions)
     if url, ok := this.FormatList[downloadOptions.Format]; ok {
         filename := name + "." + YouTube_Formats[downloadOptions.Format].Container
 
+        if downloadOptions.Begin > 0 {
+            url = url + "&begin=" + strconv.Itoa(downloadOptions.Begin)
+        }
+fmt.Println(url, downloadOptions.Begin)
         return this.download(url, filename)
     }
 
