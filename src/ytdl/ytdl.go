@@ -15,5 +15,5 @@ func main() {
     format, _ := ytVideo.GetBestQuality()
     ytVideo.DownloadVideo(title,
         ytlib.DownloadOptions { Format: format, Begin: 10000 },
-    )
+   )
 }
