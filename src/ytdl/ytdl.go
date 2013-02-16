@@ -10,10 +10,10 @@ func main() {
     ytVideo.GetFormatList()
     title := ytVideo.VideoInformation["title"][0]
 
-    fmt.Println(title)
+    fmt.Println(title, ytVideo.FormatList)
 
     format, _ := ytVideo.GetBestQuality()
     ytVideo.DownloadVideo(title,
-        ytlib.DownloadOptions { Format: format, Begin: 10000 },
-   )
+        ytlib.DownloadOptions { Format: format, Begin: 60000 },
+    )
 }
