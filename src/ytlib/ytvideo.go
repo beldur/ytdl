@@ -61,7 +61,7 @@ func (this *YTVideo) DownloadVideo(name string, downloadOptions DownloadOptions)
         if downloadOptions.Begin > 0 {
             url = url + "&begin=" + strconv.Itoa(downloadOptions.Begin)
         }
-fmt.Println(url, downloadOptions.Begin)
+
         return this.download(url, filename)
     }
 
