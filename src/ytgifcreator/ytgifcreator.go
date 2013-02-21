@@ -5,7 +5,7 @@ import (
     "html/template"
 )
 
-var templates = template.Must(template.ParseFiles("templates/index.html"))
+var templates = template.Must(template.ParseFiles("templates/index.html", "templates/jsTemplates.html"))
 
 func init() {
     http.HandleFunc("/", indexHandler)
