@@ -93,9 +93,13 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
+#videoEdit {
+    width: 425px;
+}
 
-
-
+#rngStart, #rngEnd {
+    width: 100%;
+}
 
 
 

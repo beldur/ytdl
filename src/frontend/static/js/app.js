@@ -11,13 +11,23 @@
 
         this._template = new ns.Template();
         this._template.initialize();
+
         this._api = new ns.Api();
     };
 
+    /**
+     * Initialize appliction
+     */
     App.prototype.initialize = function() {
-        this._$body.on('submit', 'form#frmVideoUrl', _.bind(this._handleVideoUrlSubmit, this));
+        this._$body
+            .on('submit', 'form#frmVideoUrl', _.bind(this._handleVideoUrlSubmit, this))
+            .on('submit', 'form#frmVideoEdito', _.bind(this._handleVideoEditSubmit, this))
+            .on('change', '#rngStart, #rngEnd', _.debounce(_.bind(this._handleVideoRangeChange, this), 500));
     };
 
+    /**
+     * User wants to edit a video
+     */
     App.prototype._handleVideoUrlSubmit = function(event) {
         event.preventDefault();
 
@@ -30,20 +40,28 @@
             return;
         }
 
-        var dfd = this._loadYtVideo(videoId).then(_.bind(function(videoInformation) {
-            this._videoInformation = videoInformation;
+        this._loadYtVideo(videoId);
+    };
 
-            $('#videoEditControls').html(
-                this._template.render('tpl-video-edit-controls', videoInformation)
-            );
-            
-            console.log(videoInformation);
-        }, this), function() {
-            alert('Could not load YouTube video :(');
-        });
+    App.prototype._handleVideoEditSubmit = function(event) {
 
     };
 
+    App.prototype._handleVideoRangeChange = function(event) {
+        var $element = event.currentTarget,
+            start = $('#rngStart').val(),
+            end = $('#rngEnd').val();
+
+        console.log($element);
+        this._video.setPosition(start, end);
+    };
+
+    /**
+     * Try to parse video id from input
+     *
+     * @param {String} videoUrl
+     * @return {Boolean|String}
+     */
     App.prototype.parseVideoId = function(videoUrl) {
         var videoMatch  = videoUrl.match(/v=([a-zA-Z0-9]{11})/);
         
@@ -53,27 +71,24 @@
     /**
      * Try to embed YT video into dom
      *
-     * @todo Add timeout
      * @param {String} videoId
      * @return {$.Deferred}
      */
     App.prototype._loadYtVideo = function(videoId) {
-        var dfd = new $.Deferred();
+        this._video = new YTGifCreator.Video(videoId);
 
         $('#videoEdit').html(this._template.render('tpl-video-edit'));
 
-        swfobject.embedSWF("http://www.youtube.com/v/" + videoId + "?enablejsapi=1&playerapiid=ytplayer&version=3",
-            "ytplayer", "425", "356", "8", null, null, { allowScriptAccess: 'always' }, { id: 'ytVideo' });
-
-        window.onYouTubePlayerReady = function(playerId) {
-            var ref = document.getElementById('ytVideo');
-
-            dfd.resolve({
-                reference: ref,
-                duration: ref.getDuration()
-            });
-        };
-
-        return dfd.promise();
+        return this._video.load('ytplayer').then(_.bind(function() {
+            $('#videoEditControls').html(
+                this._template.render('tpl-video-edit-controls', {
+                    duration: this._video.getDuration()
+                })
+            );
+            
+            this._video.play(true);
+        }, this), function() {
+            alert('Could not load YouTube video :(');
+        });
     };
 }(YTGifCreator));
