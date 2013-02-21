@@ -23,22 +23,33 @@
 
         <h1>YouTube Gif creator</h1>
 
-        <h2>Video Url</h2>
-        <form name="frmVideoUrl" id="frmVideoUrl">
-            <input type="text" maxlength="128" id="videoUrl" name="videoUrl" autofocus required/>
-        </form>
+        <section id="videoInput">
+            <h2>Video Url</h2>
+            <form name="frmVideoUrl" id="frmVideoUrl">
+                <input type="text" maxlength="42" size="42" id="videoUrl" name="videoUrl" value="http://www.youtube.com/watch?v=LkqiDu1BQXY" autofocus required/>
+            </form>
+        </section>
 
-        <h2>Gif Options</h2>
+        <section id="videoEdit"></section>
 
-        <button>Create Gif</button>
+
+        <section id="videoResult">
+
+        </section>
 
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="static/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
         <script src="static/js/vendor/underscore-1.4.4.min.js"></script>
+        <script src="static/js/vendor/swfobject.js"></script>
+
+        {{template "jsTemplates.html" .}}
+
         <script>var YTGifCreator = {};</script>
         <script src="static/js/api.js"></script>
         <script src="static/js/app.js"></script>
+        <script src="static/js/template.js"></script>
         <script src="static/js/main.js"></script>
+
     </body>
 </html>
