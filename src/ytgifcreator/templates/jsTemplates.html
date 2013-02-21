@@ -9,9 +9,11 @@
 
 <script type="template/underscore" id="tpl-video-edit-controls">
     <form id="frmVideoEdit" name="frmVideoEdit">
-        <label for="rngStart">Start: </label><input type="range" id="rngStart" name="rngStart" max="<%- data.duration %>" value="0"/>
+        <label for="rngStart">Start: </label><br/>
+        <input type="range" id="rngStart" name="rngStart" max="<%- data.duration %>" value="0"/>
         <br/>
-        <label for="rngStop">Stop: </label><input type="range" id="rngStop" name="rngStop" max="<%- data.duration %>" value="<%- data.duration %>" />
+        <label for="rngEnd">Stop: </label><br/>
+        <input type="range" id="rngEnd" name="rngEnd" max="<%- data.duration %>" value="<%- data.duration %>" />
         <br/>
         <button>Create</button>
     </form>
