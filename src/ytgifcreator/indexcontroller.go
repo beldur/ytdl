@@ -5,6 +5,7 @@ import (
 
 type Controller interface {
     Dispatch()
+    GetContext() HandleContext
 }
 
 type IndexController struct {
@@ -15,11 +16,7 @@ func (this *IndexController) Dispatch() {
     this.Context.RenderTemplate("index.html", struct {}{})
 }
 
-// Handles API specific request
-type ApiController struct {
-    Context HandleContext
+func (this *IndexController) GetContext() HandleContext {
+    return this.Context
 }
 
-func (this *ApiController) Dispatch() {
-
-}

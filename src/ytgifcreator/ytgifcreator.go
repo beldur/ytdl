@@ -4,6 +4,7 @@ import (
     "net/http"
     "html/template"
     "appengine"
+    "reflect"
 )
 
 var templates = template.Must(template.ParseFiles("templates/index.html", "templates/jsTemplates.html"))
@@ -45,5 +46,16 @@ func entryHandler(controllerName string) http.HandlerFunc {
 
         c := getControllerByName(controllerName, handleContext)
         c.Dispatch()
+    }
+}
+
+// Try to call methodName on controller, or return 404 on fail
+func FindMethodOr404 (ctrl Controller, methodName string) {
+    requestMethod := reflect.ValueOf(ctrl).MethodByName(methodName);
+
+    if requestMethod.IsValid() {
+        requestMethod.Call(make([]reflect.Value, 0))
+    } else {
+        http.Error(ctrl.GetContext().w, "Api call not found", http.StatusNotFound)
     }
 }
