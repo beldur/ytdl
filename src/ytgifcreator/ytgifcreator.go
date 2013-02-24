@@ -2,6 +2,8 @@ package ytgifcreator
 
 import (
     "net/http"
+    "net/rpc"
+    "fmt"
     "html/template"
     "appengine"
     "reflect"
@@ -58,4 +60,19 @@ func FindMethodOr404 (ctrl Controller, methodName string) {
     } else {
         http.Error(ctrl.GetContext().w, "Api call not found", http.StatusNotFound)
     }
+}
+
+// Try to call rpc method
+func RpcCall(serviceMethod string, args interface{}, reply interface{}) error {
+    client, err := rpc.DialHTTP("tcp", "localhost:8081")
+    if err != nil {
+        return fmt.Errorf("Can't find RPC Server.")
+    }
+
+    done := <-client.Go(serviceMethod, args, reply, nil).Done
+    if done.Error != nil {
+        return fmt.Errorf("Error in Done")
+    }
+
+    return nil
 }
