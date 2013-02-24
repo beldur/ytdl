@@ -5,7 +5,7 @@ api_version: go1
 
 handlers:
 - url: /static
-  static_dir: ../frontend/static
+  static_dir: frontend/static
 
 - url: /.*
   script: _go_app
