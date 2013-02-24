@@ -20,8 +20,8 @@
      */
     App.prototype.initialize = function() {
         this._$body
-            .on('submit', 'form#frmVideoUrl', _.bind(this._handleVideoUrlSubmit, this))
-            .on('submit', 'form#frmVideoEdito', _.bind(this._handleVideoEditSubmit, this))
+            .on('submit', '#frmVideoUrl', _.bind(this._handleVideoUrlSubmit, this))
+            .on('submit', '#frmVideoEdit', _.bind(this._handleVideoEditSubmit, this))
             .on('change', '#rngStart, #rngEnd', _.debounce(_.bind(this._handleVideoRangeChange, this), 500));
     };
 
@@ -44,7 +44,12 @@
     };
 
     App.prototype._handleVideoEditSubmit = function(event) {
+        event.preventDefault();
 
+        var frm = $(event.currentTarget),
+            formData = $(frm).serializeObject();
+
+        this._api.requestGif(formData);
     };
 
     App.prototype._handleVideoRangeChange = function(event) {
@@ -52,7 +57,6 @@
             start = $('#rngStart').val(),
             end = $('#rngEnd').val();
 
-        console.log($element);
         this._video.setPosition(start, end);
     };
 
@@ -82,7 +86,8 @@
         return this._video.load('ytplayer').then(_.bind(function() {
             $('#videoEditControls').html(
                 this._template.render('tpl-video-edit-controls', {
-                    duration: this._video.getDuration()
+                    duration: this._video.getDuration(),
+                    videoId: this._video.getVideoId()
                 })
             );
             
