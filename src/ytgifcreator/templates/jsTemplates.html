@@ -1,21 +1,43 @@
 <script type="template/underscore" id="tpl-video-edit">
-    <h2>Gif Options</h2>
+    <div class="eight columns centered">
+        <h3>Gif Options</h3>
 
-    <div id="ytplayerWrapper">
-        <div id="ytplayer">You need Flash player 8+ and JavaScript enabled to view this video.</div>
+        <div id="ytplayerWrapper" class="flex-video">
+            <div id="ytplayer">You need Flash player 8+ and JavaScript enabled to view this video.</div>
+        </div>
     </div>
+
     <div id="videoEditControls"></div>
 </script>
 
 <script type="template/underscore" id="tpl-video-edit-controls">
     <form id="frmVideoEdit" name="frmVideoEdit">
         <input type="hidden" value="<%- data.videoId %>" name="videoId" />
-        <label for="rngStart">Start: </label><br/>
-        <input type="range" id="rngStart" name="start" max="<%- data.duration %>" value="0"/>
-        <br/>
-        <label for="rngEnd">Stop: </label><br/>
-        <input type="range" id="rngEnd" name="end" max="<%- data.duration %>" value="<%- data.duration %>" />
-        <br/>
-        <button>Create</button>
+        
+        <div class="row">
+            <div class="two columns">
+                <label class="right inline" for="rngStart">Start: </label>
+            </div>
+            <div class="eight columns">
+                <input type="range" id="rngStart" name="start" max="<%- data.duration %>" value="0"/>
+            </div>
+            <div class="two columns"></div>
+        </div>
+        
+        <div class="row">
+            <div class="two columns">
+                <label class="right inline" for="rngEnd">Stop: </label>
+            </div>
+            <div class="eight columns">
+                <input type="range" id="rngEnd" name="end" max="<%- data.duration %>" value="<%- data.duration %>" />
+            </div>
+            <div class="two columns"></div>
+        </div>
+
+        <div class="row">
+            <div class="eight columns centered">
+                <input type="submit" class="button right" value="Create" />
+            </div>
+        </div>
     </form>
 </script>

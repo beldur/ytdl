@@ -12,8 +12,8 @@
 
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
-        <link rel="stylesheet" href="static/css/normalize.css">
-        <link rel="stylesheet" href="static/css/main.css">
+        <link rel="stylesheet" href="static/css/foundation.min.css">
+        <link rel="stylesheet" href="static/css/app.css">
         <script src="static/js/vendor/modernizr-2.6.2.min.js"></script>
     </head>
     <body>
@@ -21,21 +21,41 @@
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
         <![endif]-->
 
-        <h1>YouTube Gif creator</h1>
+        <div class="row">
+            <div class="twelve columns">
+                <h1>YouTube Gif Creator</h1>
+                <hr/>
+            </div>
+        </div>
 
-        <section id="videoInput">
-            <h2>Video Url</h2>
-            <form name="frmVideoUrl" id="frmVideoUrl">
-                <input type="text" maxlength="42" size="42" id="videoUrl" name="videoUrl" value="http://www.youtube.com/watch?v=LkqiDu1BQXY" autofocus required/>
-            </form>
-        </section>
+        <div class="row">
+            <div class="eight columns centered">
+                <section id="videoInput">
+                    <h3>Video Url</h3>
+                    <form name="frmVideoUrl" id="frmVideoUrl">
+                        <input type="text" maxlength="42" size="42" id="videoUrl" name="videoUrl" value="http://www.youtube.com/watch?v=LkqiDu1BQXY" autofocus required/>
+                    </form>
+                </section>
+            </div>
+        </div>
 
-        <section id="videoEdit"></section>
+        <div class="row" id="videoEdit">
 
-        <section id="videoResult">
+        </div>
 
-        </section>
+        <div class="row" id="videoResult">
 
+        </div>
+
+        <footer class="row">
+            <div class="twelve columns">
+                <hr/>
+                <ul class="link-list right">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/about">About</a></li>
+                </ul>
+            </div>
+        </footer>
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="static/js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
