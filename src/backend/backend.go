@@ -6,21 +6,23 @@ import (
     "net/http"
     "net"
     "rpctypes"
+    "flag"
 )
 
 var queueConter int = 0
-
+var port = flag.Int("port", 80, "The Port to run the RPC Service on")
 
 func main() {
-    fmt.Println("Starting server...")
+    flag.Parse()
+    fmt.Printf("Starting server on port %v...\n", *port)
 
     gifCreator := new(rpctypes.GifCreator)
     rpc.Register(gifCreator)
     rpc.HandleHTTP()
 
-    listener, err := net.Listen("tcp", ":8081")
+    listener, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
     if err != nil {
-        panic("Could not start listen on Port 80")
+        panic(fmt.Sprintf("Could not start listen on Port %d", *port))
     }
 
     http.Serve(listener, nil)
