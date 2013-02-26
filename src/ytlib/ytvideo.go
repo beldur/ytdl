@@ -58,10 +58,11 @@ func (this *YTVideo) DownloadVideo(name string, downloadOptions DownloadOptions)
     if url, ok := this.FormatList[downloadOptions.Format]; ok {
         filename := name + "." + YouTube_Formats[downloadOptions.Format].Container
 
-        if downloadOptions.Begin > 0 {
-            url = url + "&begin=" + strconv.Itoa(downloadOptions.Begin)
+        if downloadOptions.Start > 0 {
+            url = url + "&begin=" + strconv.Itoa(downloadOptions.Start)
         }
 
+        fmt.Println(url)
         return this.download(url, filename)
     }
 
@@ -166,6 +167,11 @@ func (this *YTVideo) download(url string, filename string) error {
     return nil
 }
 
+func (this *YTVideo) HasFormat(format int) bool {
+    _, ok := this.FormatList[format]
+
+    return ok
+}
 
 // Replace each string in search with corresponding string in replace
 func replace(value string, search []string, replace []string) string {
