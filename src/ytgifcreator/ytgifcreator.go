@@ -7,6 +7,7 @@ import (
     "html/template"
     "appengine"
     "reflect"
+    "encoding/json"
 )
 
 var templates = template.Must(template.ParseFiles("templates/index.html", "templates/jsTemplates.html"))
@@ -75,4 +76,14 @@ func RpcCall(serviceMethod string, args interface{}, reply interface{}) error {
     }
 
     return nil
+}
+
+// Try to send given obj as json object to client
+func JsonResponse(w http.ResponseWriter, obj interface{}) {
+    data, err := json.Marshal(obj)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
+
+    w.Write(data)
 }
