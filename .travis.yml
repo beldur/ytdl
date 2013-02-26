@@ -6,4 +6,4 @@ before_script:
   - unzip -qd vendor go_appengine_sdk_linux_386-1.7.5.1.zip
     
 script:
-    make run
+    make travis
