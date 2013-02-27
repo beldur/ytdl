@@ -8,7 +8,7 @@ run:
 	dev_appserver.py --use_sqlite src/ytgifcreator
 
 travis:
-	vendor/google_appengine/dev_appserver.py --use_sqlite src/ytgifcreator
+	vendor/google_appengine/dev_appserver.py --skip_sdk_update_check --use_sqlite src/ytgifcreator
 
 rpc:
 	@echo "Current GOPATH: " $$GOPATH
