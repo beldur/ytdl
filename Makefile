@@ -12,7 +12,7 @@ travis:
 
 rpc:
 	@echo "Current GOPATH: " $$GOPATH
-	go run src/backend/backend.go -port 8081
+	(cd src/backend; go build && ./backend -port 8081)
 
 deploy:
 	appcfg.py update src/ytgifcreator/
