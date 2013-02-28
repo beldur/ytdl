@@ -72,7 +72,7 @@ func RpcCall(serviceMethod string, args interface{}, reply interface{}) error {
 
     done := <-client.Go(serviceMethod, args, reply, nil).Done
     if done.Error != nil {
-        return fmt.Errorf("Error in Done")
+        return fmt.Errorf("Error in RPC Call: %v", done.Error.Error())
     }
 
     return nil

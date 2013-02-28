@@ -6,6 +6,7 @@ const YT_URL = "http://www.youtube.com/get_video_info?hl=en_US&el=detailpage&vid
 type DownloadOptions struct {
     Format int
     Start int
+    End int
 }
 
 type FormatInfo struct {

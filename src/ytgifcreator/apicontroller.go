@@ -3,7 +3,6 @@ package ytgifcreator
 import (
     "net/http"
     "rpctypes"
-    //"fmt"
     "strconv"
 )
 
@@ -24,7 +23,7 @@ func (this *ApiController) RequestGif() {
     start, _ := strconv.Atoi(this.Context.r.FormValue("start"))
     end, _ := strconv.Atoi(this.Context.r.FormValue("end"))
 
-    var gifToken int
+    videoStatus := new(rpctypes.VideoStatus)
 
     requestArguments := rpctypes.RequestGifArgs {
         this.Context.r.FormValue("videoId"),
@@ -32,13 +31,14 @@ func (this *ApiController) RequestGif() {
         end,
     }
 
-    err := RpcCall("GifCreator.RequestGif", requestArguments, &gifToken)
+    err := RpcCall("GifCreator.RequestGif", requestArguments, &videoStatus)
     if err != nil {
         http.Error(this.Context.w, err.Error(), http.StatusInternalServerError)
         return
     }
 
-    JsonResponse(this.Context.w, struct { GifToken int } { gifToken })
+    this.Context.gaeContext.Infof("video Status: %#v", videoStatus)
+    JsonResponse(this.Context.w, videoStatus)
 }
 
 func (this *ApiController) GetContext() HandleContext {
