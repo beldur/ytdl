@@ -11,6 +11,7 @@ import (
 )
 
 var templates = template.Must(template.ParseFiles("templates/index.html", "templates/jsTemplates.html"))
+var rpcConnection *rpc.Client
 
 // A Context object for each request handler
 type HandleContext struct {
@@ -65,14 +66,17 @@ func FindMethodOr404 (ctrl Controller, methodName string) {
 
 // Try to call rpc method
 func RpcCall(serviceMethod string, args interface{}, reply interface{}) error {
-    client, err := rpc.DialHTTP("tcp", "localhost:8081")
-    if err != nil {
-        return fmt.Errorf("Can't find RPC Server.")
+    if rpcConnection == nil {
+        var err error
+        rpcConnection, err = rpc.DialHTTP("tcp", "localhost:8081")
+        if err != nil {
+            return fmt.Errorf("Can't find RPC Server.")
+        }
     }
 
-    done := <-client.Go(serviceMethod, args, reply, nil).Done
+    done := <-rpcConnection.Go(serviceMethod, args, reply, nil).Done
     if done.Error != nil {
-        return fmt.Errorf("Error in RPC Call: %v", done.Error.Error())
+        return fmt.Errorf("Error in RPC Call: %#v, %v", rpcConnection.shutdown, done.Error.Error())
     }
 
     return nil
