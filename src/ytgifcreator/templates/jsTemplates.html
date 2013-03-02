@@ -1,5 +1,5 @@
 <script type="template/underscore" id="tpl-video-edit">
-    <div class="eight columns centered">
+    <div class="small-8 columns small-centered">
         <h3>Gif Options</h3>
 
         <div id="ytplayerWrapper" class="flex-video">
@@ -14,28 +14,28 @@
     <form id="frmVideoEdit" name="frmVideoEdit">
         <input type="hidden" value="<%- data.videoId %>" name="videoId" />
         
-        <div class="row">
-            <div class="two columns">
+        <div>
+            <div class="small-2 columns">
                 <label class="right inline" for="rngStart">Start: </label>
             </div>
-            <div class="eight columns">
+            <div class="small-8 columns">
                 <input type="range" id="rngStart" name="start" max="<%- data.duration %>" value="0"/>
             </div>
             <div class="two columns"></div>
         </div>
         
-        <div class="row">
-            <div class="two columns">
+        <div>
+            <div class="small-2 columns">
                 <label class="right inline" for="rngEnd">Stop: </label>
             </div>
-            <div class="eight columns">
+            <div class="small-8 columns">
                 <input type="range" id="rngEnd" name="end" max="<%- data.duration %>" value="<%- data.duration %>" />
             </div>
-            <div class="two columns"></div>
+            <div class="small-2 columns"></div>
         </div>
 
-        <div class="row">
-            <div class="eight columns centered">
+        <div>
+            <div class="small-8 columns small-centered">
                 <input type="submit" class="button right" value="Create" />
             </div>
         </div>
