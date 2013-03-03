@@ -10,8 +10,25 @@ import (
     "encoding/json"
 )
 
-var templates = template.Must(template.ParseFiles("templates/index.html", "templates/jsTemplates.html"))
-var rpcConnection *rpc.Client
+var templates = map[string]*template.Template {
+    "index.html": template.Must(template.ParseFiles(
+        "templates/index.html", "templates/jsTemplates.html", "templates/layout.html")),
+    "about.html": template.Must(template.ParseFiles(
+        "templates/about.html", "templates/jsTemplates.html", "templates/layout.html")),
+}
+
+var (
+    rpcConnection *rpc.Client
+    environment = "prod"
+    applicationSettings = map[string] ApplicationSettings {
+        "dev": { "localhost:8081" },
+        "prod": { "awsaddress" },
+    }
+)
+
+type ApplicationSettings struct {
+    RpcHostname string
+}
 
 // A Context object for each request handler
 type HandleContext struct {
@@ -21,7 +38,7 @@ type HandleContext struct {
 }
 
 func (handleContext *HandleContext) RenderTemplate(template string, data interface{}) {
-    err := templates.ExecuteTemplate(handleContext.w, template, data)
+    err := templates[template].ExecuteTemplate(handleContext.w, "layout.html", data)
     if err != nil {
         http.Error(handleContext.w, err.Error(), http.StatusInternalServerError)
     }
@@ -30,6 +47,7 @@ func (handleContext *HandleContext) RenderTemplate(template string, data interfa
 // Application entry point
 func init() {
     http.HandleFunc("/", entryHandler("IndexController"))
+    http.HandleFunc("/about", entryHandler("AboutController"))
     http.HandleFunc("/_api/", entryHandler("ApiController"))
 }
 
@@ -37,6 +55,7 @@ func init() {
 func getControllerByName(controllerName string, context HandleContext) Controller {
     switch controllerName {
     case "ApiController": return &ApiController { context }
+    case "AboutController": return &AboutController { context }
     }
 
     return &IndexController { context }
@@ -48,8 +67,14 @@ func entryHandler(controllerName string) http.HandlerFunc {
         gaeContext := appengine.NewContext(r)
         handleContext := HandleContext{w, r, gaeContext}
 
+        if appengine.IsDevAppServer() {
+            environment = "dev"
+        }
+
         c := getControllerByName(controllerName, handleContext)
         c.Dispatch()
+
+        gaeContext.Debugf("Application Settings: %#v", applicationSettings)
     }
 }
 
@@ -66,9 +91,9 @@ func FindMethodOr404 (ctrl Controller, methodName string) {
 
 // Try to call rpc method
 func RpcCall(serviceMethod string, args interface{}, reply interface{}) error {
+    var err error
     if rpcConnection == nil {
-        var err error
-        rpcConnection, err = rpc.DialHTTP("tcp", "localhost:8081")
+        rpcConnection, err = rpc.DialHTTP("tcp", applicationSettings[environment].RpcHostname)
         if err != nil {
             return fmt.Errorf("Can't find RPC Server.")
         }
@@ -76,7 +101,12 @@ func RpcCall(serviceMethod string, args interface{}, reply interface{}) error {
 
     done := <-rpcConnection.Go(serviceMethod, args, reply, nil).Done
     if done.Error != nil {
-        return fmt.Errorf("Error in RPC Call: %#v, %v", rpcConnection.shutdown, done.Error.Error())
+        // Try reconnect
+        rpcConnection, err = rpc.DialHTTP("tcp", applicationSettings[environment].RpcHostname)
+        done := <-rpcConnection.Go(serviceMethod, args, reply, nil).Done
+        if done.Error != nil {
+            return fmt.Errorf("Error in RPC Call: %#v", done.Error)
+        }
     }
 
     return nil

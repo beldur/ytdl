@@ -18,7 +18,7 @@ func (this *ApiController) Dispatch() {
 
 // User want to get Gif for Video Id
 func (this *ApiController) RequestGif() {
-    this.Context.gaeContext.Infof("Api Request: %v", "gif")
+    this.Context.gaeContext.Infof("Api Request: Gif")
 
     start, _ := strconv.Atoi(this.Context.r.FormValue("start"))
     end, _ := strconv.Atoi(this.Context.r.FormValue("end"))
@@ -39,6 +39,13 @@ func (this *ApiController) RequestGif() {
 
     this.Context.gaeContext.Infof("video Status: %#v", videoStatus)
     JsonResponse(this.Context.w, videoStatus)
+}
+
+// User want to get Status information
+func (this *ApiController) RequestStatus() {
+    this.Context.gaeContext.Infof("Api Request: Status")
+
+
 }
 
 func (this *ApiController) GetContext() HandleContext {
