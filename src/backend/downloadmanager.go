@@ -6,12 +6,18 @@ import (
     "crypto/sha1"
     "rpctypes"
     "io"
+    "path"
+    "os"
+    "strconv"
+    "os/exec"
 )
 
 // Video Status options
 const (
     DOWNLOADING rpctypes.VideoProcessStatus = iota
+    CONVERTING
     DONE
+    ERROR
 )
 
 type DownloadManager struct {
@@ -55,7 +61,33 @@ func (this *DownloadManager) StartDownload(videoId string, options ytlib.Downloa
         this.queueCounter++
         defer this.reduceCounter()
 
-        ytVideo.DownloadVideo(this.downloadDir + videoId, options)
+        downloadDirectory := path.Join(this.downloadDir, videoId, strconv.Itoa(options.Start), strconv.Itoa(options.End))
+        os.RemoveAll(downloadDirectory)
+        os.MkdirAll(downloadDirectory, 0777)
+        filename, _ := ytVideo.DownloadVideo(path.Join(downloadDirectory, videoId), options)
+        this.UpdateStatus(videoHash, CONVERTING)
+
+        cmdAvConv := exec.Command("avconv", "-i", filename,
+            "-ss", strconv.Itoa(options.Start / 1000),
+            "-t", strconv.Itoa((options.End - options.Start) / 1000),
+            "-vsync", "1", "-r", "10", "output%05d.gif")
+        cmdAvConv.Dir = downloadDirectory
+        output, err := cmdAvConv.CombinedOutput()
+        if err != nil {
+            fmt.Printf("Error converting file: %#v, %v", err.Error(), string(output))
+            this.UpdateStatus(videoHash, ERROR)
+            return
+        }
+
+        cmdConvert := exec.Command("convert", "-delay", "10", "output*.gif", videoId + ".gif")
+        cmdConvert.Dir = downloadDirectory
+        output, err = cmdConvert.CombinedOutput()
+        if err != nil {
+            fmt.Printf("Error converting file: %#v, %v", err.Error(), string(output))
+            this.UpdateStatus(videoHash, ERROR)
+            return
+        }
+
         this.UpdateStatus(videoHash, DONE)
     }()
 

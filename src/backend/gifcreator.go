@@ -15,6 +15,7 @@ func (this *GifCreator) RequestGif(args *rpctypes.RequestGifArgs, status *rpctyp
     newStatus, err := downloadManager.StartDownload(args.VideoId, ytlib.DownloadOptions {
         Format: 43,
         Start: args.Start * 1000,
+        End: args.End * 1000,
     })
 
     if err != nil {

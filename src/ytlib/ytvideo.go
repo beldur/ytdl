@@ -54,7 +54,7 @@ func (this *YTVideo) DownloadBestQuality(filename string) {
 }
 
 // Download video for given format and save it into given name
-func (this *YTVideo) DownloadVideo(name string, downloadOptions DownloadOptions) error {
+func (this *YTVideo) DownloadVideo(name string, downloadOptions DownloadOptions) (string, error) {
     if url, ok := this.FormatList[downloadOptions.Format]; ok {
         filename := name + "." + YouTube_Formats[downloadOptions.Format].Container
 
@@ -63,10 +63,10 @@ func (this *YTVideo) DownloadVideo(name string, downloadOptions DownloadOptions)
         }
 
         fmt.Println(url)
-        return this.download(url, filename)
+        return filename, this.download(url, filename)
     }
 
-    return fmt.Errorf("Format not found!")
+    return "", fmt.Errorf("Format not found!")
 }
 
 // Create a new YTVideo struct
