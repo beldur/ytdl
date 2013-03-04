@@ -7,6 +7,7 @@ import (
     "rpctypes"
     "io"
     "path"
+    "path/filepath"
     "os"
     "strconv"
     "os/exec"
@@ -23,14 +24,14 @@ const (
 type DownloadManager struct {
     downloadDir string
     queueCounter int
-    videoList map[string]rpctypes.VideoProcessStatus
+    videoList map[string]*rpctypes.VideoStatus
 }
 
 func (this *DownloadManager) Init(downloadDirectory string) *DownloadManager {
     return &DownloadManager {
         downloadDirectory,
         0,
-        map[string]rpctypes.VideoProcessStatus {},
+        map[string]*rpctypes.VideoStatus {},
     }
 }
 
@@ -61,12 +62,14 @@ func (this *DownloadManager) StartDownload(videoId string, options ytlib.Downloa
         this.queueCounter++
         defer this.reduceCounter()
 
+        // Download Video
         downloadDirectory := path.Join(this.downloadDir, videoId, strconv.Itoa(options.Start), strconv.Itoa(options.End))
         os.RemoveAll(downloadDirectory)
         os.MkdirAll(downloadDirectory, 0777)
         filename, _ := ytVideo.DownloadVideo(path.Join(downloadDirectory, videoId), options)
         this.UpdateStatus(videoHash, CONVERTING)
 
+        // Convert Video to frame images
         cmdAvConv := exec.Command("avconv", "-i", filename,
             "-ss", strconv.Itoa(options.Start / 1000),
             "-t", strconv.Itoa((options.End - options.Start) / 1000),
@@ -79,6 +82,7 @@ func (this *DownloadManager) StartDownload(videoId string, options ytlib.Downloa
             return
         }
 
+        // Convert images to animated gif
         cmdConvert := exec.Command("convert", "-delay", "10",
             "-layers", "OptimizeTransparency",
             "output*.gif", videoId + ".gif")
@@ -90,6 +94,12 @@ func (this *DownloadManager) StartDownload(videoId string, options ytlib.Downloa
             return
         }
 
+        // Remove Temp files
+        tmpFiles, _ := filepath.Glob(path.Join(downloadDirectory, "output*.gif"))
+        for _, tmpFile := range tmpFiles {
+            fmt.Println(tmpFile, os.Remove(tmpFile))
+        }
+
         this.UpdateStatus(videoHash, DONE)
     }()
 
@@ -99,22 +109,26 @@ func (this *DownloadManager) StartDownload(videoId string, options ytlib.Downloa
 // Create a video status struct
 func (this *DownloadManager) CreateVideoStatus(videoId string, options ytlib.DownloadOptions, status rpctypes.VideoProcessStatus) *rpctypes.VideoStatus {
     videoHash := this.GetVideoHash(videoId, options)
-    fmt.Println(videoHash)
-    return &rpctypes.VideoStatus { videoHash, status }
+    this.videoList[videoHash] = &rpctypes.VideoStatus { videoHash, status, "" }
+
+    return this.videoList[videoHash]
 }
 
 // Get current video status
 func (this *DownloadManager) GetVideoStatus(videoHash string) (*rpctypes.VideoStatus, error) {
     videoStatus, exists := this.videoList[videoHash]
     if exists {
-        return &rpctypes.VideoStatus { videoHash, videoStatus }, nil
+        return videoStatus, nil
     }
 
     return nil, fmt.Errorf("Video status not found")
 }
 
 func (this *DownloadManager) UpdateStatus(videoHash string, status rpctypes.VideoProcessStatus) {
-    this.videoList[videoHash] = status
+    if videoStatus, ok := this.videoList[videoHash]; ok {
+        videoStatus.Status = status
+        fmt.Println("Updated Status", videoStatus, this.videoList[videoHash])
+    }
 }
 
 func (this *DownloadManager) reduceCounter () {

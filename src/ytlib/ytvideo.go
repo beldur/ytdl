@@ -62,7 +62,6 @@ func (this *YTVideo) DownloadVideo(name string, downloadOptions DownloadOptions)
             url = url + "&begin=" + strconv.Itoa(downloadOptions.Start)
         }
 
-        fmt.Println(url)
         return filename, this.download(url, filename)
     }
 

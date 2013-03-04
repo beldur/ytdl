@@ -22,7 +22,7 @@ var (
     environment = "prod"
     applicationSettings = map[string] ApplicationSettings {
         "dev": { "localhost:8081" },
-        "prod": { "awsaddress" },
+        "prod": { "ec2-23-23-61-212.compute-1.amazonaws.com:80" },
     }
 )
 

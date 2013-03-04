@@ -18,4 +18,5 @@ type VideoProcessStatus int
 type VideoStatus struct {
     Hash string
     Status VideoProcessStatus
+    ImageUrl string
 }
