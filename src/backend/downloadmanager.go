@@ -79,7 +79,9 @@ func (this *DownloadManager) StartDownload(videoId string, options ytlib.Downloa
             return
         }
 
-        cmdConvert := exec.Command("convert", "-delay", "10", "output*.gif", videoId + ".gif")
+        cmdConvert := exec.Command("convert", "-delay", "10",
+            "-layers", "OptimizeTransparency",
+            "output*.gif", videoId + ".gif")
         cmdConvert.Dir = downloadDirectory
         output, err = cmdConvert.CombinedOutput()
         if err != nil {
