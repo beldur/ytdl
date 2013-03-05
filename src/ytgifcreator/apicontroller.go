@@ -31,6 +31,7 @@ func (this *ApiController) RequestGif() {
         end,
     }
 
+    this.Context.gaeContext.Infof("RPC Call to %s", applicationSettings[environment].RpcHostname)
     err := RpcCall("GifCreator.RequestGif", requestArguments, &videoStatus)
     if err != nil {
         http.Error(this.Context.w, err.Error(), http.StatusInternalServerError)

@@ -97,7 +97,7 @@ func (this *DownloadManager) StartDownload(videoId string, options ytlib.Downloa
         // Remove Temp files
         tmpFiles, _ := filepath.Glob(path.Join(downloadDirectory, "output*.gif"))
         for _, tmpFile := range tmpFiles {
-            fmt.Println(tmpFile, os.Remove(tmpFile))
+            os.Remove(tmpFile)
         }
 
         this.UpdateStatus(videoHash, DONE)
